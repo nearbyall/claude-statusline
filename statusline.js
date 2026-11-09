@@ -2,12 +2,15 @@
 const { execSync } = require('child_process');
 const path = require('path');
 
+// Strip control characters so names can't inject terminal escape sequences
+const stripControl = s => String(s).replace(/[\x00-\x1f\x7f-\x9f]/g, '');
+
 let input = '';
 process.stdin.on('data', chunk => input += chunk);
 process.stdin.on('end', () => {
     const data = JSON.parse(input);
-    const model = (data.model.display_name || '').split(' ')[0];
-    const dir = path.basename(data.workspace.current_dir);
+    const model = stripControl((data.model.display_name || '').split(' ')[0]);
+    const dir = stripControl(path.basename(data.workspace.current_dir));
     const pct = Math.floor(data.context_window?.used_percentage || 0);
     const durationMs = data.cost?.total_duration_ms || 0;
     const sessionPct = data.rate_limits?.five_hour?.used_percentage ?? null;
@@ -49,7 +52,7 @@ process.stdin.on('end', () => {
 
     let branch = '';
     try {
-        branch = execSync('git branch --show-current', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+        branch = stripControl(execSync('git branch --show-current', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim());
         branch = branch ? ` | 🌿 ${branch}` : '';
     } catch {}
 
