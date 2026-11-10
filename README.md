@@ -4,6 +4,8 @@
 
 A compact status line for [Claude Code](https://code.claude.com) showing the model, directory, git branch, context usage, rate limits and session time.
 
+![claude-statusline](docs/demo.gif)
+
 ## What it shows
 
 | Segment | Description |
